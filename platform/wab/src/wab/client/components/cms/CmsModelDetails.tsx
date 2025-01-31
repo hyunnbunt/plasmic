@@ -16,6 +16,7 @@ import { Spinner } from "@/wab/client/components/widgets";
 import Button from "@/wab/client/components/widgets/Button";
 import { Icon } from "@/wab/client/components/widgets/Icon";
 import { Modal } from "@/wab/client/components/widgets/Modal";
+import { confirm } from "@/wab/client/components/quick-modals";
 import Select from "@/wab/client/components/widgets/Select";
 import Textbox from "@/wab/client/components/widgets/Textbox";
 import { useApi } from "@/wab/client/contexts/AppContexts";
@@ -480,9 +481,16 @@ function CmsModelDetails_(
                 <Menu.Item
                   key="delete"
                   onClick={async () => {
-                    await api.deleteCmsTable(tableId);
-                    await mutateTable(databaseId, tableId);
-                    history.push(UU.cmsSchemaRoot.fill({ databaseId }));
+                    const confirmed = await confirm({
+                                          title: "Delete model",
+                                          message: `Are you sure you want to delete model "${table.name}"?`,
+                                        });
+                                        if (confirmed) {
+                                          await api.deleteCmsTable(tableId);
+                                          await mutateTable(databaseId, tableId);
+                                          history.push(UU.cmsSchemaRoot.fill({ databaseId }));
+                                        }
+
                   }}
                 >
                   Delete model

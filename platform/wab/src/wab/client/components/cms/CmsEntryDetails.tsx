@@ -13,6 +13,7 @@ import {
   renderMaybeLocalizedInput,
 } from "@/wab/client/components/cms/CmsInputs";
 import { isCmsTextLike } from "@/wab/client/components/cms/utils";
+import { confirm } from "@/wab/client/components/quick-modals";
 import Button from "@/wab/client/components/widgets/Button";
 import { Modal } from "@/wab/client/components/widgets/Modal";
 import { useApi, useAppCtx } from "@/wab/client/contexts/AppContexts";
@@ -609,14 +610,22 @@ function CmsEntryDetailsForm_(
                 <Menu.Item
                   key="delete"
                   onClick={async () => {
-                    await api.deleteCmsRow(row.id);
-                    await mutateRow();
-                    history.push(
-                      UU.cmsModelContent.fill({
-                        databaseId: database.id,
-                        tableId: table.id,
-                      })
-                    );
+                    const confirmed = await confirm({
+                      title: "Delete entry",
+                      message: `Are you sure you want to delete entry "${
+                        row.identifier ? row.identifier : "Untitled"
+                      }"?`,
+                    });
+                    if (confirmed) {
+                      await api.deleteCmsRow(row.id);
+                      await mutateRow();
+                      history.push(
+                        UU.cmsModelContent.fill({
+                          databaseId: database.id,
+                          tableId: table.id,
+                        })
+                      );
+                    }
                   }}
                 >
                   Delete entry
