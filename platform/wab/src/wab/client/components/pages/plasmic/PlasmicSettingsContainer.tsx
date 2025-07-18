@@ -30,6 +30,8 @@ import PersonalAccessToken from "./PersonalAccessToken"; // plasmic-import: F4ZV
 
 import "@plasmicapp/react-web/lib/plasmic.css";
 
+import { reactConfirm } from "@/wab/client/components/quick-modals";
+
 import plasmic_plasmic_kit_color_tokens_css from "../../../plasmic/plasmic_kit_q_4_color_tokens/plasmic_plasmic_kit_q_4_color_tokens.module.css"; // plasmic-import: 95xp9cYcv7HrNWpFWWhbcv/projectcss
 import plasmic_plasmic_kit_design_system_css from "../../../plasmic/PP__plasmickit_design_system.module.css"; // plasmic-import: tXkSR39sgCDWSitZxC5xFV/projectcss
 import projectcss from "../../../plasmic/PP__plasmickit_settings.module.css"; // plasmic-import: aaggSgVS8yYsAwQffVQB4p/projectcss
@@ -37,6 +39,8 @@ import sty from "./PlasmicSettingsContainer.module.css"; // plasmic-import: XkSd
 
 import image3YherfIxkolNxf from "../../../plasmic/plasmic_kit_design_system/images/image3.svg"; // plasmic-import: yherfIxkolNXF/picture
 import PlussvgIcon from "../../../plasmic/plasmic_kit_icons/icons/PlasmicIcon__PlusSvg"; // plasmic-import: sQKgd2GNr/icon
+import { Menu, notification } from "antd";
+import { NonAuthCtx, useNonAuthCtx } from "@/wab/client/app-ctx";
 
 export type PlasmicSettingsContainer__VariantMembers = {
   tokenState: "loading" | "loaded" | "error";
@@ -120,6 +124,7 @@ function PlasmicSettingsContainer__RenderFunc(props: {
     ...args,
     ...variants,
   };
+  const nonAuthCtx = useNonAuthCtx();
 
   const currentUser = p.useCurrentUser?.() || {};
 
@@ -298,6 +303,34 @@ function PlasmicSettingsContainer__RenderFunc(props: {
               ),
             })}
           >
+            <Menu>
+              <Menu.Item
+                key="delete"
+                onClick={async () => {
+                  const confirm = await reactConfirm({
+                    title: `Delete user account`,
+                    message: (
+                      <>
+                        Are you sure you want to delete your account?
+                      </>
+                    ),
+                  });
+                  if (!confirm) {
+                    return;
+                  }
+                  try {
+                    const res = await nonAuthCtx.api.deactivateUser(args.email);
+                    notification.success({
+                      message: "User deactivated",
+                    });
+                  } catch (e) {
+                    notification.error({ message: `${e}` });
+                  }
+                }}
+              >
+                <strong>Delete</strong> account
+              </Menu.Item>
+            </Menu>
             <img
               data-plasmic-name={"img"}
               data-plasmic-override={overrides.img}
