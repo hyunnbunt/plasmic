@@ -10,6 +10,12 @@ import { AsyncState } from "@/wab/client/hooks/useAsyncStrict";
 const LazyChangePasswordModal = React.lazy(
   () => import("@/wab/client/components/ChangePasswordModal")
 );
+import {useNonAuthCtx } from "@/wab/client/app-ctx";
+import {
+  Menu,
+  notification,
+} from "antd";
+import { reactConfirm } from "../../quick-modals";
 
 interface SettingsContainerProps {
   avatarImgUrl?: string;
@@ -43,6 +49,7 @@ function SettingsContainer(props: SettingsContainerProps) {
     newTokenButton: { props: { onClick: props.onNewToken } },
     newTrustedHostBtn: { onClick: props.onNewTrustedHost },
   };
+  const nonAuthCtx = useNonAuthCtx();
 
   if (tokenState === "loaded") {
     const tokens = ensure(
@@ -93,6 +100,38 @@ function SettingsContainer(props: SettingsContainerProps) {
         changePasswordButton={{
           onClick: () => setChangingPassword(true),
         }}
+        menuButton={{
+            menu: () => (
+              <Menu>
+                <Menu.Item
+                  key="delete"
+                  onClick={async () => {
+                  const confirm = await reactConfirm({
+                    title: `Delete user account`,
+                    message: (
+                      <>
+                        Are you sure you want to delete your account?
+                      </>
+                    ),
+                  });
+                  if (!confirm) {
+                    return;
+                  }
+                  try {
+                    await nonAuthCtx.api.deactivateUser(props.email);
+                    notification.success({
+                      message: "User deactivated",
+                    });
+                  } catch (e) {
+                    notification.error({ message: `${e}` });
+                  }
+                }}
+                >
+                  <strong>Delete</strong> user
+                </Menu.Item>
+              </Menu>
+            ),
+          }}
       />
       {changingPassword && (
         <BareModal onClose={() => setChangingPassword(false)} width={480}>
