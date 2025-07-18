@@ -40,7 +40,7 @@ import sty from "./PlasmicSettingsContainer.module.css"; // plasmic-import: XkSd
 import image3YherfIxkolNxf from "../../../plasmic/plasmic_kit_design_system/images/image3.svg"; // plasmic-import: yherfIxkolNXF/picture
 import PlussvgIcon from "../../../plasmic/plasmic_kit_icons/icons/PlasmicIcon__PlusSvg"; // plasmic-import: sQKgd2GNr/icon
 import { Menu, notification } from "antd";
-import { NonAuthCtx, useNonAuthCtx } from "@/wab/client/app-ctx";
+import MenuButton from "@/wab/client/components/widgets/MenuButton"; // plasmic-import: h69wHrrKtL/component
 
 export type PlasmicSettingsContainer__VariantMembers = {
   tokenState: "loading" | "loaded" | "error";
@@ -87,6 +87,7 @@ export type PlasmicSettingsContainer__OverridesType = {
   personalAccessToken?: p.Flex<typeof PersonalAccessToken>;
   newTrustedHostBtn?: p.Flex<typeof Button>;
   hostsList?: p.Flex<"div">;
+  menuButton?: p.Flex__<typeof MenuButton>;
 };
 
 export interface DefaultSettingsContainerProps {
@@ -124,7 +125,6 @@ function PlasmicSettingsContainer__RenderFunc(props: {
     ...args,
     ...variants,
   };
-  const nonAuthCtx = useNonAuthCtx();
 
   const currentUser = p.useCurrentUser?.() || {};
 
@@ -229,7 +229,6 @@ function PlasmicSettingsContainer__RenderFunc(props: {
       >
         {"Profile settings"}
       </div>
-
       <p.Stack
         as={"div"}
         hasGap={true}
@@ -303,34 +302,11 @@ function PlasmicSettingsContainer__RenderFunc(props: {
               ),
             })}
           >
-            <Menu>
-              <Menu.Item
-                key="delete"
-                onClick={async () => {
-                  const confirm = await reactConfirm({
-                    title: `Delete user account`,
-                    message: (
-                      <>
-                        Are you sure you want to delete your account?
-                      </>
-                    ),
-                  });
-                  if (!confirm) {
-                    return;
-                  }
-                  try {
-                    const res = await nonAuthCtx.api.deactivateUser(args.email);
-                    notification.success({
-                      message: "User deactivated",
-                    });
-                  } catch (e) {
-                    notification.error({ message: `${e}` });
-                  }
-                }}
-              >
-                <strong>Delete</strong> account
-              </Menu.Item>
-            </Menu>
+            <MenuButton
+              data-plasmic-name={"menuButton"}
+              data-plasmic-override={overrides.menuButton}
+              className={classNames("__wab_instance", sty.menuButton)}
+            />
             <img
               data-plasmic-name={"img"}
               data-plasmic-override={overrides.img}
@@ -338,7 +314,6 @@ function PlasmicSettingsContainer__RenderFunc(props: {
               className={classNames(projectcss.all, projectcss.img, sty.img)}
               src={image3YherfIxkolNxf}
             />
-
             <div className={classNames(projectcss.all, sty.freeBox__piPA)}>
               {p.renderPlasmicSlot({
                 defaultContents: "Kimberly Schmidt",
@@ -1018,10 +993,12 @@ const PlasmicDescendants = {
     "personalAccessToken",
     "newTrustedHostBtn",
     "hostsList",
+    "menuButton"
   ],
 
   img: ["img"],
   changePasswordButton: ["changePasswordButton"],
+  menuButton: ["menuButton"],
   newTokenButton: ["newTokenButton"],
   existingTokens: ["existingTokens", "tokenInstance", "personalAccessToken"],
   tokenInstance: ["tokenInstance"],
@@ -1042,6 +1019,7 @@ type NodeDefaultElementType = {
   personalAccessToken: typeof PersonalAccessToken;
   newTrustedHostBtn: typeof Button;
   hostsList: "div";
+  menuButton: typeof MenuButton;
 };
 
 type ReservedPropsType = "variants" | "args" | "overrides";
@@ -1109,6 +1087,7 @@ export const PlasmicSettingsContainer = Object.assign(
     // Helper components rendering sub-elements
     img: makeNodeComponent("img"),
     changePasswordButton: makeNodeComponent("changePasswordButton"),
+    menuButton: makeNodeComponent("menuButton"),
     newTokenButton: makeNodeComponent("newTokenButton"),
     existingTokens: makeNodeComponent("existingTokens"),
     tokenInstance: makeNodeComponent("tokenInstance"),
